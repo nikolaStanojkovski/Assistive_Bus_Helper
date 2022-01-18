@@ -1,0 +1,87 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'com.chaquo.python'
+}
+
+def REPO_ROOT = "./"
+
+android {
+    compileSdk 31
+
+    defaultConfig {
+        applicationId "mk.ukim.finki.androidkotlinapplication"
+        minSdk 21
+        targetSdk 31
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        python {
+            pip {
+                install "g2p-en"
+                install "librosa"
+                install "matplotlib"
+                install "numpy"
+                install "pypinyin"
+                install "PyYAML"
+                install "soundfile"
+                install "scipy"
+                install "tgt"
+                install "torch"
+                install "tqdm"
+                install "unidecode"
+            }
+        }
+
+        ndk {
+            abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+        }
+
+        sourceSets {
+            main {
+                python.srcDir "src/main/python"
+                python {
+                    srcDir REPO_ROOT
+
+                    include "fastspeech2/"
+                    include "fastspeech2/__init__.py"
+                    include "synthesize_android.py"
+                    include "hello_world.py"
+                }
+            }
+        }
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+
+    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.4.0'
+    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
+    testImplementation 'junit:junit:4.+'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9")
+
+    implementation 'org.pytorch:pytorch_android_lite:1.9.0'
+    implementation 'org.pytorch:pytorch_android_torchvision:1.9.0'
+}

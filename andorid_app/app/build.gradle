@@ -24,6 +24,9 @@ android {
                 install "librosa"
                 install "matplotlib"
                 install "numpy"
+                install "nltk==3.5"
+                install "inflect==1.0.0"
+                install "Distance ==0.1.3"
                 install "pypinyin"
                 install "PyYAML"
                 install "soundfile"
@@ -48,7 +51,6 @@ android {
                     include "fastspeech2/"
                     include "fastspeech2/__init__.py"
                     include "synthesize_android.py"
-                    include "hello_world.py"
                 }
             }
         }

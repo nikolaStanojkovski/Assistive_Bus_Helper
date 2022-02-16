@@ -1,4 +1,5 @@
 import os
+from os.path import dirname, join
 import json
 
 import torch
@@ -8,7 +9,10 @@ import matplotlib
 from scipy.io import wavfile
 from matplotlib import pyplot as plt
 
+from com.chaquo.python import Python
 
+
+files_dir = str(Python.getPlatform().getApplication().getExternalFilesDir(None))
 matplotlib.use("Agg")
 
 
@@ -162,7 +166,6 @@ def synth_one_sample(targets, predictions, vocoder, model_config, preprocess_con
 
 
 def synth_samples(targets, predictions, vocoder, model_config, preprocess_config, path):
-
     basenames = targets[0]
     for i in range(len(predictions[0])):
         basename = basenames[i]
@@ -194,7 +197,7 @@ def synth_samples(targets, predictions, vocoder, model_config, preprocess_config
             stats,
             ["Synthetized Spectrogram"],
         )
-        plt.savefig("/data/data/mk.ukim.finki.androidkotlinapplication/files/chaquopy/AssetFinder/app/fastspeech2/output/result/LJSpeech/{}.png".format(basename))
+        plt.savefig(join(dirname(files_dir), "{}.png".format(basename)))
         plt.close()
 
     from .model import vocoder_infer
@@ -207,7 +210,9 @@ def synth_samples(targets, predictions, vocoder, model_config, preprocess_config
 
     sampling_rate = preprocess_config["preprocessing"]["audio"]["sampling_rate"]
     for wav, basename in zip(wav_predictions, basenames):
-        wavfile.write("/data/data/mk.ukim.finki.androidkotlinapplication/files/chaquopy/AssetFinder/app/fastspeech2/output/result/LJSpeech/{}.wav".format(basename), sampling_rate, wav)
+        wavfile.write(join(dirname(files_dir), "{}.wav".format(basename)), sampling_rate, wav)
+
+    print("Finished work from Chaquopy!!!")
 
 
 def plot_mel(data, stats, titles):

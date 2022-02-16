@@ -4,6 +4,11 @@ import re
 import torch
 import yaml
 from fastspeech2.dataset import TextDataset
+import nltk
+import os
+
+nltk.download('averaged_perceptron_tagger')
+
 from g2p_en import G2p
 from os.path import dirname, join
 from pypinyin import pinyin, Style
@@ -12,6 +17,10 @@ from fastspeech2.text import text_to_sequence
 from torch.utils.data import DataLoader
 from fastspeech2.utils.model import get_model, get_vocoder
 from fastspeech2.utils.tools import to_device, synth_samples
+
+from os.path import dirname, join
+from scipy.io import wavfile
+from com.chaquo.python import Python
 
 
 # Define all global properties
@@ -75,7 +84,7 @@ def preprocess_english(text, preprocess_config):
     return np.array(sequence)
 
 
-def synthesize(model, step, configs, vocoder, batchs, control_values):
+def synthesize(model, step, configs, vocoder, batchs, control_values, text):
     preprocess_config, model_config, train_config = configs
     pitch_control, energy_control, duration_control = control_values
 
@@ -120,4 +129,4 @@ def main(text, model, vocoder):
     text_lens = np.array([len(texts[0])])
     batchs = [(ids, raw_texts, speakers, texts, text_lens, max(text_lens))]
     control_values = pitch_control, energy_control, duration_control
-    synthesize(model, restore_step, configs, vocoder, batchs, control_values)
+    synthesize(model, restore_step, configs, vocoder, batchs, control_values, text)

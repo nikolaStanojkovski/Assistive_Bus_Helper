@@ -1,3 +1,10 @@
 <resources>
-    <string name="app_name">Android Kotlin Application</string>
+    <string name="app_name">Assistive Bus Helper</string>
+
+    <!-- Model inference and preparation related strings -->
+    <string name="inference_message">Awaiting inference from model…</string>
+    <string name="model_loading_message">Successfully loaded vocoder and model.</string>
+    <string name="audio_generated_message">Successfully generated an audio file.</string>
+    <string name="progress_dialog_message">Loading TTS model…</string>
+
 </resources>

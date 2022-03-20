@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
@@ -12,10 +13,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import mk.ukim.finki.androidkotlinapplication.ui.ProgressDialogCreator
+import mk.ukim.finki.androidkotlinapplication.util.ModelUtils
+import mk.ukim.finki.androidkotlinapplication.util.NotificationUtils
 import java.io.File
 
 
 class MainActivity : AppCompatActivity() {
+
+    private var notificationReference: NotificationCompat.Builder? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +39,7 @@ class MainActivity : AppCompatActivity() {
             Python.start(AndroidPlatform(this))
         }
 
+        val context = this
         val progressDialog = ProgressDialogCreator.create(this)
         progressDialog.show()
         CoroutineScope(Dispatchers.IO).launch {
@@ -42,9 +49,9 @@ class MainActivity : AppCompatActivity() {
             val model = synthesizeObject.callAttr("get_static_model")
             val vocoder = synthesizeObject.callAttr("get_static_vocoder")
 
-            ModelDataHolder.synthesize_object = synthesizeObject
-            ModelDataHolder.model = model
-            ModelDataHolder.vocoder = vocoder
+            ModelUtils.synthesize_object = synthesizeObject
+            ModelUtils.model = model
+            ModelUtils.vocoder = vocoder
 
             withContext(Dispatchers.Main) {
                 val statusMessageView = findViewById<TextView>(R.id.txtStatusMessage)
@@ -55,6 +62,7 @@ class MainActivity : AppCompatActivity() {
                     )
                 )
                 statusMessageView.text = resources.getText(R.string.model_loading_message)
+                notificationReference = NotificationUtils.showNotification(context)
                 progressDialog.dismiss()
             }
         }
@@ -65,17 +73,20 @@ class MainActivity : AppCompatActivity() {
         val verifiedSymbol = findViewById<ImageView>(R.id.imgViewVerified)
         val progressBar = findViewById<ProgressBar>(R.id.inferenceProgressBar)
 
+        if (notificationReference != null) {
+            NotificationUtils.updateNotificationProgress(notificationReference!!, false)
+        }
         progressBar.visibility = View.VISIBLE
         outputValue.visibility = View.VISIBLE
         outputValue.text = resources.getText(R.string.inference_message)
         verifiedSymbol.visibility = View.INVISIBLE
 
         CoroutineScope(Dispatchers.Default).launch {
-            ModelDataHolder.synthesize_object!!.callAttr(
+            ModelUtils.synthesize_object!!.callAttr(
                 "main",
                 textValue,
-                ModelDataHolder.model,
-                ModelDataHolder.vocoder
+                ModelUtils.model,
+                ModelUtils.vocoder
             )
 
             withContext(Dispatchers.Main) {
@@ -89,6 +100,9 @@ class MainActivity : AppCompatActivity() {
                 outputValue.visibility = View.INVISIBLE
                 verifiedSymbol.visibility = View.VISIBLE
 
+                if (notificationReference != null) {
+                    NotificationUtils.updateNotificationProgress(notificationReference!!, true)
+                }
                 playFile(textValue)
             }
         }
@@ -112,6 +126,14 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        if (notificationReference != null) {
+            NotificationUtils.cancelNotification()
         }
     }
 }

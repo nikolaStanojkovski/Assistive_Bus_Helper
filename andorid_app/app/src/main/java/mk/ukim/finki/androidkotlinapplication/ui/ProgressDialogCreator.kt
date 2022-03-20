@@ -1,4 +1,4 @@
-package mk.ukim.finki.androidkotlinapplication
+package mk.ukim.finki.androidkotlinapplication.ui
 
 import android.app.AlertDialog
 import android.content.Context
@@ -9,9 +9,12 @@ import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import mk.ukim.finki.androidkotlinapplication.R
 
 class ProgressDialogCreator {
     companion object {
+        private const val DIALOG_TEXT_COLOR = "#000000"
+
         fun create(context: Context): AlertDialog {
             val llPadding = 30
             val ltbPadding = 100
@@ -38,7 +41,7 @@ class ProgressDialogCreator {
             llParam.gravity = Gravity.CENTER
             val tvText = TextView(context)
             tvText.text = context.resources.getText(R.string.progress_dialog_message)
-            tvText.setTextColor(Color.parseColor("#000000"))
+            tvText.setTextColor(Color.parseColor(DIALOG_TEXT_COLOR))
             tvText.textSize = 20f
             tvText.layoutParams = llParam
 

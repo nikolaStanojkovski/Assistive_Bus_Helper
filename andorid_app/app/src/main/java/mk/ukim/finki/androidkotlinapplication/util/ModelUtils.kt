@@ -1,8 +1,8 @@
-package mk.ukim.finki.androidkotlinapplication
+package mk.ukim.finki.androidkotlinapplication.util
 
 import com.chaquo.python.PyObject
 
-class ModelDataHolder {
+class ModelUtils {
     companion object {
         var synthesize_object: PyObject? = null
         var model: PyObject? = null

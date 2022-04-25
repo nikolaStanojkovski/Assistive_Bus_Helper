@@ -1,8 +1,8 @@
-package mk.ukim.finki.androidkotlinapplication.util
+package mk.ukim.finki.androidkotlinapplication.util.tts
 
 import com.chaquo.python.PyObject
 
-class ModelUtils {
+class TTSUtils {
     companion object {
         var synthesize_object: PyObject? = null
         var model: PyObject? = null

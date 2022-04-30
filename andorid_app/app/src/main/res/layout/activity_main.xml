@@ -15,7 +15,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.365" />
+        app:layout_constraintVertical_bias="0.472" />
 
     <Button
         android:id="@+id/btnSpeak"
@@ -27,6 +27,18 @@
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/inputText"
-        app:layout_constraintVertical_bias="0.129" />
+        app:layout_constraintVertical_bias="0.159" />
+
+    <ImageView
+        android:id="@+id/btnCamera"
+        android:layout_width="85dp"
+        android:layout_height="94dp"
+        app:layout_constraintBottom_toTopOf="@+id/inputText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.493"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.747"
+        app:srcCompat="@drawable/ic_baseline_photo_camera_24" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -212,7 +212,7 @@ def synth_samples(targets, predictions, vocoder, model_config, preprocess_config
     for wav, basename in zip(wav_predictions, basenames):
         wavfile.write(join(dirname(files_dir), "{}.wav".format(basename)), sampling_rate, wav)
 
-    print("Finished work from Chaquopy!!!")
+    print("Successful label inference with FastSpeech2 model")
 
 
 def plot_mel(data, stats, titles):

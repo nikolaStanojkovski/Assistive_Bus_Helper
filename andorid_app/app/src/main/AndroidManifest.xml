@@ -8,20 +8,17 @@
 
     <application
         android:allowBackup="true"
+        android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AndroidKotlinApplication">
-        <receiver
-            android:name=".util.tts.TTSBroadcastReceiver"
-            android:enabled="true"
-            android:exported="true"></receiver>
 
         <service
             android:name=".util.tts.TTSService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="false" />
 
         <activity
             android:name=".MainActivity"

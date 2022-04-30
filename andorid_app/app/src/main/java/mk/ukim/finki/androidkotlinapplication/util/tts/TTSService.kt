@@ -1,18 +1,29 @@
 package mk.ukim.finki.androidkotlinapplication.util.tts
 
 import android.app.Service
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.IBinder
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.chaquo.python.Python
+import com.chaquo.python.android.AndroidPlatform
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import mk.ukim.finki.androidkotlinapplication.R
 import mk.ukim.finki.androidkotlinapplication.util.NotificationUtils
 import java.io.File
 
 class TTSService : Service() {
 
+    private lateinit var ttsReceiver: BroadcastReceiver
     private var notificationReference: NotificationCompat.Builder? = null
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -20,14 +31,44 @@ class TTSService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent != null && intent.extras != null) {
-            val textToSpeak = (intent.extras as Bundle).get("textToSpeak") as String?
-            if (!textToSpeak.isNullOrBlank()) {
-                inferenceModel(textToSpeak)
-            }
-        }
+        receiveInferenceUpdate()
+        LocalBroadcastManager.getInstance(this)
+            .registerReceiver(ttsReceiver, IntentFilter("tts_inference_update"))
+        startModel()
 
         return super.onStartCommand(intent, flags, startId)
+    }
+
+    private fun sendProgressUpdate() {
+        val activityIntent = Intent("tts_service_update")
+        activityIntent.putExtra("closeProgressDialog", true)
+
+        LocalBroadcastManager.getInstance(this).sendBroadcast(activityIntent)
+    }
+
+    private fun startModel() {
+        if (!Python.isStarted()) {
+            Python.start(AndroidPlatform(this))
+        }
+
+        val context = this
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val py: Python = Python.getInstance()
+
+            val synthesizeObject = py.getModule("synthesize_android")
+            val model = synthesizeObject.callAttr("get_static_model")
+            val vocoder = synthesizeObject.callAttr("get_static_vocoder")
+
+            TTSUtils.synthesize_object = synthesizeObject
+            TTSUtils.model = model
+            TTSUtils.vocoder = vocoder
+
+            withContext(Dispatchers.Main) {
+                notificationReference = NotificationUtils.showNotification(context)
+                sendProgressUpdate()
+            }
+        }
     }
 
     private fun inferenceModel(textValue: String) {
@@ -54,6 +95,22 @@ class TTSService : Service() {
         playFile(textValue)
     }
 
+    private fun receiveInferenceUpdate() {
+        ttsReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (intent?.extras != null) {
+                    val bundle: Bundle = intent.extras!!
+
+                    val textToSpeak: String? = bundle.getString("textToSpeak")
+                    if (!textToSpeak.isNullOrEmpty()) {
+                        inferenceModel(textToSpeak)
+                    }
+                }
+            }
+
+        }
+    }
+
     private fun playFile(textValue: String) {
         val path = getExternalFilesDir(null)
         val audioFile = File(path, "../${textValue}.wav")
@@ -69,10 +126,18 @@ class TTSService : Service() {
                     audioFile.delete()
                     if (spectrogramFile.exists()) {
                         spectrogramFile.delete()
-                        stopSelf()
                     }
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        if (notificationReference != null) {
+            NotificationUtils.cancelNotification()
+        }
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(ttsReceiver)
     }
 }

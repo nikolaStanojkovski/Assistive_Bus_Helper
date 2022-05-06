@@ -13,8 +13,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import mk.ukim.finki.androidkotlinapplication.ui.CameraActivity
 import mk.ukim.finki.androidkotlinapplication.ui.ProgressDialog
-import mk.ukim.finki.androidkotlinapplication.util.ocr.CameraUtils
+import mk.ukim.finki.androidkotlinapplication.util.ocr.OCRService
 import mk.ukim.finki.androidkotlinapplication.util.tts.TTSService
 
 
@@ -22,10 +23,12 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var progressDialog: AlertDialog
     private lateinit var serviceReceiver: BroadcastReceiver
+    private lateinit var buttonSpeak: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        buttonSpeak = findViewById(R.id.btnSpeak)
         progressDialog = ProgressDialog(this).build()
         progressDialog.show()
 
@@ -33,19 +36,53 @@ class MainActivity : AppCompatActivity() {
         LocalBroadcastManager.getInstance(this)
             .registerReceiver(serviceReceiver, IntentFilter("tts_service_update"))
         startTTSService()
+        startOCRService()
 
-        findViewById<Button>(R.id.btnSpeak).setOnClickListener {
+        buttonSpeak.setOnClickListener {
+            buttonSpeak.isEnabled = false
+            buttonSpeak.isClickable = false
             sendTTSUpdate(findViewById<TextView>(R.id.inputText).text.toString())
         }
 
         findViewById<ImageView>(R.id.btnCamera).setOnClickListener {
-            CameraUtils.askCameraPermissions(this)
+            if (!packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
+                Toast.makeText(this, "No camera on this device", Toast.LENGTH_LONG)
+                    .show()
+            } else {
+                val intent = Intent(this, CameraActivity::class.java)
+                startActivity(intent)
+            }
         }
     }
 
+    private fun receiveInferenceUpdate() {
+        serviceReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (intent?.extras != null) {
+                    val bundle: Bundle = intent.extras!!
+
+                    val closeProgressDialog: Boolean =
+                        bundle.getBoolean("closeProgressDialog", false)
+                    val inferenceFinished: Boolean = bundle.getBoolean("inferenceFinished", false)
+                    if (closeProgressDialog) {
+                        progressDialog.dismiss()
+                    }
+                    if (inferenceFinished) {
+                        buttonSpeak.isEnabled = true
+                        buttonSpeak.isClickable = true
+                    }
+                }
+            }
+        }
+    }
 
     private fun startTTSService() {
         val serviceIntent = Intent(this, TTSService::class.java)
+        startService(serviceIntent)
+    }
+
+    private fun startOCRService() {
+        val serviceIntent = Intent(this, OCRService::class.java)
         startService(serviceIntent)
     }
 
@@ -56,55 +93,9 @@ class MainActivity : AppCompatActivity() {
         LocalBroadcastManager.getInstance(this).sendBroadcast(serviceIntent)
     }
 
-    private fun receiveInferenceUpdate() {
-        serviceReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                if (intent?.extras != null) {
-                    val bundle: Bundle = intent.extras!!
-
-                    val closeProgressDialog: Boolean = bundle.getBoolean("closeProgressDialog")
-                    if (closeProgressDialog) {
-                        progressDialog.dismiss()
-                    }
-                }
-            }
-
-        }
-    }
-
     override fun onDestroy() {
         super.onDestroy()
 
         LocalBroadcastManager.getInstance(this).unregisterReceiver(serviceReceiver)
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == CameraUtils.CAMERA_PERMISSION_CODE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                CameraUtils.openCamera(this)
-            } else {
-                Toast.makeText(
-                    applicationContext,
-                    "Camera permission is required to use camera. $grantResults",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == CameraUtils.CAMERA_REQUEST_CODE && data != null) {
-            if (data.extras != null) {
-                // TODO: Pass the image where it is needed.
-                val image = data.extras!!.get("data")
-            }
-        }
     }
 }

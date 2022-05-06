@@ -39,13 +39,6 @@ class TTSService : Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private fun sendProgressUpdate() {
-        val activityIntent = Intent("tts_service_update")
-        activityIntent.putExtra("closeProgressDialog", true)
-
-        LocalBroadcastManager.getInstance(this).sendBroadcast(activityIntent)
-    }
-
     private fun startModel() {
         if (!Python.isStarted()) {
             Python.start(AndroidPlatform(this))
@@ -95,22 +88,6 @@ class TTSService : Service() {
         playFile(textValue)
     }
 
-    private fun receiveInferenceUpdate() {
-        ttsReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                if (intent?.extras != null) {
-                    val bundle: Bundle = intent.extras!!
-
-                    val textToSpeak: String? = bundle.getString("textToSpeak")
-                    if (!textToSpeak.isNullOrEmpty()) {
-                        inferenceModel(textToSpeak)
-                    }
-                }
-            }
-
-        }
-    }
-
     private fun playFile(textValue: String) {
         val path = getExternalFilesDir(null)
         val audioFile = File(path, "../${textValue}.wav")
@@ -127,9 +104,40 @@ class TTSService : Service() {
                     if (spectrogramFile.exists()) {
                         spectrogramFile.delete()
                     }
+                    sendInferenceUpdate()
                 }
             }
         }
+    }
+
+    private fun receiveInferenceUpdate() {
+        ttsReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (intent?.extras != null) {
+                    val bundle: Bundle = intent.extras!!
+
+                    val textToSpeak: String? = bundle.getString("textToSpeak")
+                    if (!textToSpeak.isNullOrEmpty()) {
+                        inferenceModel(textToSpeak)
+                    }
+                }
+            }
+
+        }
+    }
+
+    private fun sendProgressUpdate() {
+        val activityIntent = Intent("tts_service_update")
+        activityIntent.putExtra("closeProgressDialog", true)
+
+        LocalBroadcastManager.getInstance(this).sendBroadcast(activityIntent)
+    }
+
+    private fun sendInferenceUpdate() {
+        val activityIntent = Intent("tts_service_update")
+        activityIntent.putExtra("inferenceFinished", true)
+
+        LocalBroadcastManager.getInstance(this).sendBroadcast(activityIntent)
     }
 
     override fun onDestroy() {

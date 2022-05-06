@@ -7,7 +7,16 @@ from fastspeech2.dataset import TextDataset
 import nltk
 import os
 
-nltk.download('averaged_perceptron_tagger')
+while True:
+    try:
+        nltk.data.find('taggers/averaged_perceptron_tagger.zip')
+    except:
+        nltk.download('averaged_perceptron_tagger')
+    try:
+        nltk.data.find('corpora/cmudict.zip')
+        break
+    except:
+        nltk.download('cmudict')
 
 from g2p_en import G2p
 from os.path import dirname, join

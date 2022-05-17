@@ -39,7 +39,7 @@ class VarianceAdaptor(nn.Module):
         assert pitch_quantization in ["linear", "log"]
         assert energy_quantization in ["linear", "log"]
         with open(
-            "/data/data/mk.ukim.finki.androidkotlinapplication/files/chaquopy/AssetFinder/app/fastspeech2/preprocessed_data/LJSpeech/stats.json"
+            "/data/data/mk.ukim.finki.assistivebushelper/files/chaquopy/AssetFinder/app/fastspeech2/preprocessed_data/LJSpeech/stats.json"
         ) as f:
             stats = json.load(f)
             pitch_min, pitch_max = stats["pitch"][:2]

@@ -185,7 +185,7 @@ def synth_samples(targets, predictions, vocoder, model_config, preprocess_config
             energy = predictions[3][i, :mel_len].detach().cpu().numpy()
 
         with open(
-            "/data/data/mk.ukim.finki.androidkotlinapplication/files/chaquopy/AssetFinder/app/fastspeech2/preprocessed_data/LJSpeech/stats.json"
+            "/data/data/mk.ukim.finki.assistivebushelper/files/chaquopy/AssetFinder/app/fastspeech2/preprocessed_data/LJSpeech/stats.json"
         ) as f:
             stats = json.load(f)
             stats = stats["pitch"] + stats["energy"][:2]

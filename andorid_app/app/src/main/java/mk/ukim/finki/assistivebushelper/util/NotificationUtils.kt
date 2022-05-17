@@ -1,4 +1,4 @@
-package mk.ukim.finki.androidkotlinapplication.util
+package mk.ukim.finki.assistivebushelper.util
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -8,7 +8,7 @@ import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
-import mk.ukim.finki.androidkotlinapplication.R
+import assistivebushelper.R
 
 class NotificationUtils {
 

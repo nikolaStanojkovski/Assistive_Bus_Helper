@@ -1,4 +1,4 @@
-package mk.ukim.finki.androidkotlinapplication.util.tts
+package mk.ukim.finki.assistivebushelper.util.tts
 
 import android.app.Service
 import android.content.BroadcastReceiver
@@ -17,17 +17,24 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import mk.ukim.finki.androidkotlinapplication.R
-import mk.ukim.finki.androidkotlinapplication.util.NotificationUtils
+import assistivebushelper.R
+import mk.ukim.finki.assistivebushelper.util.NotificationUtils
 import java.io.File
+import android.os.Binder
+
 
 class TTSService : Service() {
 
     private lateinit var ttsReceiver: BroadcastReceiver
     private var notificationReference: NotificationCompat.Builder? = null
 
-    override fun onBind(intent: Intent?): IBinder? {
-        TODO("Not yet implemented")
+    override fun onBind(intent: Intent?): IBinder {
+        receiveInferenceUpdate()
+        LocalBroadcastManager.getInstance(this)
+            .registerReceiver(ttsReceiver, IntentFilter("tts_inference_update"))
+        startModel()
+
+        return Binder()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

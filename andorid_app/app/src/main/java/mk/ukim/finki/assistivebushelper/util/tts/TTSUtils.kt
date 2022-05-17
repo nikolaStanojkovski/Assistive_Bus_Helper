@@ -1,4 +1,4 @@
-package mk.ukim.finki.androidkotlinapplication.util.tts
+package mk.ukim.finki.assistivebushelper.util.tts
 
 import com.chaquo.python.PyObject
 

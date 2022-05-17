@@ -7,6 +7,7 @@ from fastspeech2.dataset import TextDataset
 import nltk
 import os
 
+nltkTimeoutCounter = 0
 while True:
     try:
         nltk.data.find('taggers/averaged_perceptron_tagger.zip')
@@ -17,6 +18,10 @@ while True:
         break
     except:
         nltk.download('cmudict')
+
+    nltkTimeoutCounter += 1
+    if nltkTimeoutCounter == 15:
+            break
 
 from g2p_en import G2p
 from os.path import dirname, join
@@ -68,7 +73,7 @@ def read_lexicon(lex_path):
 
 def preprocess_english(text, preprocess_config):
     text = text.rstrip(punctuation)
-    lexicon = read_lexicon("/data/data/mk.ukim.finki.androidkotlinapplication/files/chaquopy/AssetFinder/app/fastspeech2/lexicon/librispeech-lexicon.txt")
+    lexicon = read_lexicon("/data/data/mk.ukim.finki.assistivebushelper/files/chaquopy/AssetFinder/app/fastspeech2/lexicon/librispeech-lexicon.txt")
 
     g2p = G2p()
     phones = []

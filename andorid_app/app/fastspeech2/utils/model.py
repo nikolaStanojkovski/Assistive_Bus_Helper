@@ -14,7 +14,7 @@ def get_model(restore_step, configs, device, train=False):
 
     model = FastSpeech2(preprocess_config, model_config).to(device)
     if restore_step:
-        ckpt_path = "/data/data/mk.ukim.finki.androidkotlinapplication/files/chaquopy/AssetFinder/app/fastspeech2/output/ckpt/LJSpeech/{}.pth.tar".format(restore_step)
+        ckpt_path = "/data/data/mk.ukim.finki.assistivebushelper/files/chaquopy/AssetFinder/app/fastspeech2/output/ckpt/LJSpeech/{}.pth.tar".format(restore_step)
         ckpt = torch.load(ckpt_path, map_location='cpu')
         model.load_state_dict(ckpt["model"])
 
@@ -53,14 +53,14 @@ def get_vocoder(config, device):
         vocoder.mel2wav.eval()
         vocoder.mel2wav.to(device)
     elif name == "HiFi-GAN":
-        with open("/data/data/mk.ukim.finki.androidkotlinapplication/files/chaquopy/AssetFinder/app/fastspeech2/hifigan/config.json", "r") as f:
+        with open("/data/data/mk.ukim.finki.assistivebushelper/files/chaquopy/AssetFinder/app/fastspeech2/hifigan/config.json", "r") as f:
             config = json.load(f)
         config = hifigan.AttrDict(config)
         vocoder = hifigan.Generator(config)
         if speaker == "LJSpeech":
-            ckpt = torch.load("/data/data/mk.ukim.finki.androidkotlinapplication/files/chaquopy/AssetFinder/app/fastspeech2/hifigan/generator_LJSpeech.pth.tar", map_location='cpu')
+            ckpt = torch.load("/data/data/mk.ukim.finki.assistivebushelper/files/chaquopy/AssetFinder/app/fastspeech2/hifigan/generator_LJSpeech.pth.tar", map_location='cpu')
         elif speaker == "universal":
-            ckpt = torch.load("/data/data/mk.ukim.finki.androidkotlinapplication/files/chaquopy/AssetFinder/app/fastspeech2/hifigan/generator_universal.pth.tar", map_location='cpu')
+            ckpt = torch.load("/data/data/mk.ukim.finki.assistivebushelper/files/chaquopy/AssetFinder/app/fastspeech2/hifigan/generator_universal.pth.tar", map_location='cpu')
         vocoder.load_state_dict(ckpt["generator"])
         vocoder.eval()
         vocoder.remove_weight_norm()

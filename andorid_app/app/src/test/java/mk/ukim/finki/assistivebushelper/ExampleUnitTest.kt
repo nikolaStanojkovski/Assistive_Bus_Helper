@@ -1,4 +1,4 @@
-package mk.ukim.finki.androidkotlinapplication
+package mk.ukim.finki.assistivebushelper
 
 import org.junit.Test
 

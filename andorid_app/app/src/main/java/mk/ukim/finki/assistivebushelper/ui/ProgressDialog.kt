@@ -1,4 +1,4 @@
-package mk.ukim.finki.androidkotlinapplication.ui
+package mk.ukim.finki.assistivebushelper.ui
 
 import android.app.AlertDialog
 import android.content.Context
@@ -9,7 +9,7 @@ import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
-import mk.ukim.finki.androidkotlinapplication.R
+import assistivebushelper.R
 
 class ProgressDialog(context: Context) {
     private val buildContext: Context = context

@@ -1,17 +1,16 @@
-package mk.ukim.finki.androidkotlinapplication.util.ocr
+package mk.ukim.finki.assistivebushelper.util.ocr
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.hardware.Camera
-import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import android.widget.Toast
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.util.*
 
@@ -32,12 +31,8 @@ class ShowCamera(context: Context, camera: Camera) : SurfaceView(context, null, 
             contextCamera.startPreview()
             contextCamera.takePicture(null, null, { data, _ ->
                 CoroutineScope(Dispatchers.IO).launch {
-                    Log.v("Debug", data.toString())
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(context, "OCR Model Inference succesful", Toast.LENGTH_LONG)
-                            .show()
-                        contextCamera.startPreview()
-                    }
+                    sendPictureUpdate(data)
+                    contextCamera.startPreview()
                 }
             })
         }
@@ -88,17 +83,28 @@ class ShowCamera(context: Context, camera: Camera) : SurfaceView(context, null, 
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
-        if (timerTask.cancel() && timer != null) {
-            timer!!.purge()
-            timer!!.cancel()
-            timer = null
-        }
+        cancelTimer()
         contextCamera.stopPreview()
         contextCamera.release()
     }
 
     private fun takePictures() {
         timer = Timer()
-        Timer().schedule(timerTask, 0, 3000)
+        Timer().schedule(timerTask, 0, 4000)
+    }
+
+    private fun sendPictureUpdate(imageParts: ByteArray?) {
+        val activityIntent = Intent("ocr_inference_update")
+        activityIntent.putExtra("pictureToProcess", imageParts)
+
+        LocalBroadcastManager.getInstance(context).sendBroadcast(activityIntent)
+    }
+
+    fun cancelTimer() {
+        if (timerTask.cancel() && timer != null) {
+            timer!!.purge()
+            timer!!.cancel()
+            timer = null
+        }
     }
 }

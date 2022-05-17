@@ -1,4 +1,4 @@
-package mk.ukim.finki.androidkotlinapplication.util.ocr
+package mk.ukim.finki.assistivebushelper.util.ocr
 
 import android.Manifest
 import android.app.Activity

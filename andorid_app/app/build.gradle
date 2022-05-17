@@ -10,7 +10,7 @@ android {
     compileSdk 31
 
     defaultConfig {
-        applicationId "mk.ukim.finki.androidkotlinapplication"
+        applicationId "mk.ukim.finki.assistivebushelper"
         minSdk 21
         targetSdk 31
         multiDexEnabled true
@@ -36,6 +36,7 @@ android {
                 install "torch"
                 install "tqdm"
                 install "unidecode"
+                install "torchvision"
             }
         }
 
@@ -52,6 +53,7 @@ android {
                     include "fastspeech2/"
                     include "fastspeech2/__init__.py"
                     include "synthesize_android.py"
+                    include "compute_bus_number.py"
                 }
             }
         }

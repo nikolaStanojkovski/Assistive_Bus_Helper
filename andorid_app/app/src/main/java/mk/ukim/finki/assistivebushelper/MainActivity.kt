@@ -5,9 +5,7 @@ import android.content.*
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
-import android.widget.Button
 import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -27,14 +25,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var progressDialog: AlertDialog
     private lateinit var ttsServiceReceiver: BroadcastReceiver
     private lateinit var ocrServiceReceiver: BroadcastReceiver
-    private lateinit var buttonSpeak: Button
 
     private var progressDialogCloseCounter = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        buttonSpeak = findViewById(R.id.btnSpeak)
+
         sharedPreferences = getSharedPreferences("mk.ukim.finki.assistivebushelper", MODE_PRIVATE)
         receivePictureNumber(intent)
 
@@ -54,12 +51,6 @@ class MainActivity : AppCompatActivity() {
             } else {
                 initModels()
             }
-        }
-
-        buttonSpeak.setOnClickListener {
-            buttonSpeak.isEnabled = false
-            buttonSpeak.isClickable = false
-            sendTTSUpdate(findViewById<TextView>(R.id.inputText).text.toString())
         }
 
         findViewById<ImageView>(R.id.btnCamera).setOnClickListener {
@@ -113,14 +104,9 @@ class MainActivity : AppCompatActivity() {
 
                     val closeProgressDialog: Boolean =
                         bundle.getBoolean("closeProgressDialog", false)
-                    val inferenceFinished: Boolean = bundle.getBoolean("inferenceFinished", false)
                     if (closeProgressDialog) {
                         progressDialogCloseCounter++
                         checkCloseDialog()
-                    }
-                    if (inferenceFinished) {
-                        buttonSpeak.isEnabled = true
-                        buttonSpeak.isClickable = true
                     }
                 }
             }
@@ -171,5 +157,6 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
 
         LocalBroadcastManager.getInstance(this).unregisterReceiver(ttsServiceReceiver)
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(ocrServiceReceiver)
     }
 }

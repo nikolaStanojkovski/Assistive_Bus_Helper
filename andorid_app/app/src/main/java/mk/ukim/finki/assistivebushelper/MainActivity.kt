@@ -26,7 +26,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var progressDialog: AlertDialog
     private lateinit var ttsServiceReceiver: BroadcastReceiver
+    private lateinit var ocrServiceReceiver: BroadcastReceiver
     private lateinit var buttonSpeak: Button
+
+    private var progressDialogCloseCounter = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,9 +38,9 @@ class MainActivity : AppCompatActivity() {
         sharedPreferences = getSharedPreferences("mk.ukim.finki.assistivebushelper", MODE_PRIVATE)
         receivePictureNumber(intent)
 
-        if(TTSUtils.model == null && TTSUtils.synthesize_object == null && TTSUtils.vocoder == null) {
-            if(checkFirstRun()) {
-                if(InternetUtils.hasActiveInternetConnection(this)) {
+        if (TTSUtils.model == null && TTSUtils.synthesize_object == null && TTSUtils.vocoder == null) {
+            if (checkFirstRun()) {
+                if (InternetUtils.hasActiveInternetConnection(this)) {
                     sharedPreferences.edit().putBoolean("firstrun", false).apply()
                     initModels()
                 } else {
@@ -74,8 +77,11 @@ class MainActivity : AppCompatActivity() {
         progressDialog = ProgressDialog(this).build()
         progressDialog.show()
         receiveTTSInferenceUpdate()
+        receiveOCRInferenceUpdate()
         LocalBroadcastManager.getInstance(this)
             .registerReceiver(ttsServiceReceiver, IntentFilter("tts_service_update"))
+        LocalBroadcastManager.getInstance(this)
+            .registerReceiver(ocrServiceReceiver, IntentFilter("ocr_service_update"))
         startTTSService()
         startOCRService()
     }
@@ -85,11 +91,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun receivePictureNumber(intent: Intent?) {
-        if(intent != null) {
+        if (intent != null) {
             if (intent.extras != null) {
                 val bundle: Bundle = intent.extras!!
 
-                val busNumber: String?  =
+                val busNumber: String? =
                     bundle.getString("busNumber")
 
                 if (!busNumber.isNullOrEmpty()) {
@@ -109,7 +115,8 @@ class MainActivity : AppCompatActivity() {
                         bundle.getBoolean("closeProgressDialog", false)
                     val inferenceFinished: Boolean = bundle.getBoolean("inferenceFinished", false)
                     if (closeProgressDialog) {
-                        progressDialog.dismiss()
+                        progressDialogCloseCounter++
+                        checkCloseDialog()
                     }
                     if (inferenceFinished) {
                         buttonSpeak.isEnabled = true
@@ -117,6 +124,29 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
+        }
+    }
+
+    private fun receiveOCRInferenceUpdate() {
+        ocrServiceReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (intent?.extras != null) {
+                    val bundle: Bundle = intent.extras!!
+
+                    val closeProgressDialog: Boolean =
+                        bundle.getBoolean("closeProgressDialog", false)
+                    if (closeProgressDialog) {
+                        progressDialogCloseCounter++
+                        checkCloseDialog()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun checkCloseDialog() {
+        if (progressDialogCloseCounter == 2) {
+            progressDialog.dismiss()
         }
     }
 

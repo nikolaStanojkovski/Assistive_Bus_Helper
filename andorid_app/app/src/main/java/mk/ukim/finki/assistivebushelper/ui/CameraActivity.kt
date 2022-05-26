@@ -81,11 +81,12 @@ class CameraActivity : AppCompatActivity() {
                 if (intent?.extras != null) {
                     val bundle: Bundle = intent.extras!!
 
-                    val busNumber: String?  =
+                    val busNumber: String? =
                         bundle.getString("busNumber")
                     if (!busNumber.isNullOrEmpty() && busNumber.all { char -> char.isDigit() }) {
                         showCamera.cancelTimer()
-                        val mainActivityIntent = Intent(cameraActivityContext, MainActivity::class.java)
+                        val mainActivityIntent =
+                            Intent(cameraActivityContext, MainActivity::class.java)
                         mainActivityIntent.putExtra("busNumber", busNumber)
                         startActivity(mainActivityIntent)
                     }

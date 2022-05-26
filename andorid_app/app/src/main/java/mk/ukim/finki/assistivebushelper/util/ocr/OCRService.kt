@@ -16,6 +16,8 @@ import com.chaquo.python.android.AndroidPlatform
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import mk.ukim.finki.assistivebushelper.util.ValidationUtils
 
 class OCRService : Service() {
     private lateinit var ocrReceiver: BroadcastReceiver
@@ -51,19 +53,23 @@ class OCRService : Service() {
 
             OCRUtils.bus_number_classification_object = busNumberClassificationObject
             OCRUtils.model = model
+
+            withContext(Dispatchers.Main) {
+                sendProgressUpdate()
+            }
         }
     }
 
     private fun inferenceModel(pictureToProcess: ByteArray) {
         val busNumberObject = OCRUtils.bus_number_classification_object!!.callAttr(
-            "predict_img_class",
-            pictureToProcess,
-            OCRUtils.model
+            "get_bus_number",
+            OCRUtils.model,
+            pictureToProcess
         )
 
-        if(busNumberObject != null) {
+        if (busNumberObject != null) {
             val busNumber = busNumberObject.toString()
-            if(busNumber.isNotEmpty()) {
+            if (busNumber.isNotEmpty() && ValidationUtils.isNumeric(busNumber) && busNumber != "-1") {
                 Toast.makeText(
                     applicationContext,
                     resources.getText(R.string.bus_number_generated_message),
@@ -96,5 +102,18 @@ class OCRService : Service() {
             }
 
         }
+    }
+
+    private fun sendProgressUpdate() {
+        val activityIntent = Intent("ocr_service_update")
+        activityIntent.putExtra("closeProgressDialog", true)
+
+        LocalBroadcastManager.getInstance(this).sendBroadcast(activityIntent)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(ocrReceiver)
     }
 }

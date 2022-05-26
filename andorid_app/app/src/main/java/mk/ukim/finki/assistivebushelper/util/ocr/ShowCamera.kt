@@ -90,7 +90,7 @@ class ShowCamera(context: Context, camera: Camera) : SurfaceView(context, null, 
 
     private fun takePictures() {
         timer = Timer()
-        Timer().schedule(timerTask, 0, 4000)
+        Timer().schedule(timerTask, 0, 5000)
     }
 
     private fun sendPictureUpdate(imageParts: ByteArray?) {

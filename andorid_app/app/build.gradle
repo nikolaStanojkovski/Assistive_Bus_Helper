@@ -36,6 +36,8 @@ android {
                 install "torch"
                 install "tqdm"
                 install "unidecode"
+
+                install "easyocr"
                 install "torchvision"
             }
         }

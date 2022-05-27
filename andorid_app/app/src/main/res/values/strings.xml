@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Assistive Bus Helper</string>
+
+    <string name="inference_message">Awaiting inference from model…</string>
+    <string name="model_loading_message">Successfully loaded vocoder and model.</string>
+    <string name="audio_generated_message">Successfully generated an audio file.</string>
+    <string name="bus_number_generated_message">Successfully generated a bus number.</string>
+    <string name="application_not_found">Application has not been found.</string>
+    <string name="progress_dialog_message">Loading components…</string>
+    <string name="camera_description">Open the device camera to capture busses</string>
+
+</resources>

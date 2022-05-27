@@ -1,0 +1,91 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'com.chaquo.python'
+}
+
+def REPO_ROOT = "./"
+
+android {
+    compileSdk 31
+
+    defaultConfig {
+        applicationId "mk.ukim.finki.assistivebushelper"
+        minSdk 21
+        targetSdk 31
+        multiDexEnabled true
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        python {
+            pip {
+                install "g2p-en"
+                install "librosa"
+                install "matplotlib"
+                install "numpy"
+                install "nltk==3.5"
+                install "inflect==1.0.0"
+                install "Distance ==0.1.3"
+                install "pypinyin"
+                install "PyYAML"
+                install "soundfile"
+                install "scipy"
+                install "tgt"
+                install "torch"
+                install "tqdm"
+                install "unidecode"
+
+                install "easyocr"
+                install "torchvision"
+            }
+        }
+
+        ndk {
+            abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+        }
+
+        sourceSets {
+            main {
+                python.srcDir "src/main/python"
+                python {
+                    srcDir REPO_ROOT
+
+                    include "fastspeech2/"
+                    include "fastspeech2/__init__.py"
+                    include "synthesize_android.py"
+                    include "compute_bus_number.py"
+                }
+            }
+        }
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+
+    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'com.google.android.material:material:1.6.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    testImplementation 'junit:junit:'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9")
+}
